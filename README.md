@@ -1,6 +1,6 @@
 # CS336: Language Modeling from Scratch
 
-My implementation and experiments for [Stanford CS336 — Language Modeling from Scratch](https://cs336.stanford.edu/) (Assignments 1–3). Everything here — the tokenizer, the transformer, the training loop, the distributed systems code, and the scaling-law tooling — is built from first principles, mostly in raw PyTorch and Triton without relying on Hugging Face or other high-level libraries.
+My implementation and experiments for [Stanford CS336 — Language Modeling from Scratch](https://cs336.stanford.edu/) (Assignments 1–4). Everything here - the tokenizer, the transformer, the training loop, the distributed systems code, the scaling-law tooling, and the data pipeline - is built from first principles, mostly in raw PyTorch and Triton without relying on Hugging Face or other high-level libraries.
 
 Full writeups with results and analysis are in [`writeup.md`](./writeup.md).
 
@@ -25,11 +25,16 @@ Full writeups with results and analysis are in [`writeup.md`](./writeup.md).
 - Chinchilla IsoFLOPs analysis to derive compute-optimal model/dataset size tradeoffs, fitting power laws to loss vs. compute
 - Scaling-law experiment design under a fixed compute budget, allocating denser coverage to cheaper runs and using larger runs to validate the fitted curve
 
+**Assignment 4 — Data**
+- Common Crawl text extraction (resiliparse vs. WET) and language identification
+- PII masking (emails, phone numbers, IP addresses) and harmful-content filtering (NSFW, toxic speech detection)
+- Gopher-style quality-filtering rules and exact deduplication over web-scraped documents
+
 ## Repo structure
 
 ```
 .
-├── writeup.md              # combined writeup for all three assignments
+├── writeup.md              # combined writeup for all four assignments
 ├── assignment1/             # tokenizer, transformer, optimizer, training loop
 │   ├── src/                 # BPE tokenizer, model, optimizer, training loop
 │   ├── tests/
@@ -39,10 +44,15 @@ Full writeups with results and analysis are in [`writeup.md`](./writeup.md).
 │   ├── cs336-basics/           # assignment 1 model code, reused as a dependency
 │   ├── results/                # benchmark CSVs and profiling plots
 │   └── tests/
-└── assignment3/              # scaling laws
-    ├── cs336_scaling/           # chinchilla_isoflops.py
+├── assignment3/              # scaling laws
+│   ├── cs336_scaling/           # chinchilla_isoflops.py
+│   ├── scripts/
+│   ├── examples/
+│   └── tests/
+└── assignment4/              # data: extraction, filtering, dedup
+    ├── cs336_data/              # text extraction, langid, PII masking, quality filters, dedup
+    ├── cs336_basics/            # assignment 1 model code, reused as a dependency
     ├── scripts/
-    ├── examples/
     └── tests/
 ```
 
