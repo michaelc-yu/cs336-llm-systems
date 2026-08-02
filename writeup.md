@@ -49,3 +49,13 @@ Naive filtering can produce both false positives and false negatives. And replac
 (c)
 When these filters are applied to create the training set, the language model won't be exposed to nsfw or toxic speech much and so will be less capable of handling these topics appropriately. I think it would be best to still expose the model to some examples of nsfw and toxic speech content during pretraining so it is at least knowledgeable about these topics. Then during SFT, fine-tune the model to discuss nsfw topics appropriately and refuse requests to generate toxic speech.
 
+
+# Problem (gopher_quality_rules)
+
+(a) See cs336_data/utils.py gopher_filter()
+
+
+# Problem (exact_deduplication)
+
+See cs336_data/dedup.py exact_dedup()
+

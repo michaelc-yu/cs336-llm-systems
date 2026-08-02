@@ -1,6 +1,7 @@
 import os
 import re
 import fasttext
+import nltk.tokenize
 from fastwarc.warc import ArchiveIterator, WarcRecordType
 from resiliparse.extract.html2text import extract_plain_text
 from resiliparse.parse.encoding import detect_encoding
@@ -76,6 +77,36 @@ def detect_toxic_speech(text):
     return label, confidence
 
 
+def gopher_filter(text):
+    text = text.strip()
+    tokenized = nltk.tokenize.word_tokenize(text)
+    tokenized = [token for token in tokenized if token.strip()]
+
+    if len(tokenized) < 50 or len(tokenized) > 100000:
+        print("Contains less than 50 or more than 100,000 words")
+        return False
+
+    mean_length = sum(len(word) for word in tokenized) / len(tokenized)
+    if mean_length < 3 or mean_length > 10:
+        print("Mean word length outside the range of 3 to 10 characters")
+        return False
+
+    lines = text.split("\n")
+    lines = [line.strip() for line in lines]
+    if (sum(1 for line in lines if line.endswith("...")) / len(lines)) > 0.3:
+        print("Has more than 30% of lines ending with an ellipsis")
+        return False
+
+    alpha_char_count = sum(1 for word in tokenized if any(c.isalpha() for c in word))
+    alpha_frac = alpha_char_count / len(tokenized)
+    if alpha_frac < 0.8:
+        print("Contain less than 80% of words with at least one alphabetic character")
+        return False
+
+    print("All filters passed!")
+    return True
+
+
 
 if __name__ == "__main__":
     # warc_to_text('shared-data/CC/example.warc.gz')
@@ -88,3 +119,4 @@ if __name__ == "__main__":
     # masked_text, count = mask_phone_numbers("hi my name is bob and u can contact me at 123-456-7890")
     # print(f"masked_text: {masked_text}, count: {count}")
 
+    gopher_filter("hi my name is bob")
