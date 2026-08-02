@@ -39,3 +39,13 @@ Language identification errors can introduce false positives and false negatives
 (d)
 Naive filtering can produce both false positives and false negatives. And replacing every match with the same placeholder can distort the data distribution and reduce the model's ability to understand or generate valid emails, phone numbers, or IP addresses. To mitigate these issues, one could replace sensitive values with realistic synthetic examples instead of a fixed placeholder token?
 
+
+# Problem (harmful_content)
+
+(a) See cs336_data/utils.py detect_nsfw()
+
+(b) See cs336_data/utils.py detect_toxic_speech()
+
+(c)
+When these filters are applied to create the training set, the language model won't be exposed to nsfw or toxic speech much and so will be less capable of handling these topics appropriately. I think it would be best to still expose the model to some examples of nsfw and toxic speech content during pretraining so it is at least knowledgeable about these topics. Then during SFT, fine-tune the model to discuss nsfw topics appropriately and refuse requests to generate toxic speech.
+

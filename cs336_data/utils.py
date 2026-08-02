@@ -56,15 +56,35 @@ def mask_ips(text):
     return masked_text, count
 
 
+def detect_nsfw(text):
+    text = text.replace("\n", "")
+    nsfw_classifier = fasttext.load_model('shared-data/classifiers/dolma_fasttext_nsfw_jigsaw_model.bin')
+    prediction = nsfw_classifier.predict(text)
+    label = prediction[0][0].replace("__label__", "")
+    confidence = prediction[1][0]
+    print(f"Language label: {label}, confidence: {confidence}")
+    return label, confidence
+
+
+def detect_toxic_speech(text):
+    text = text.replace("\n", "")
+    toxic_speech_classifier = fasttext.load_model('shared-data/classifiers/dolma_fasttext_hatespeech_jigsaw_model.bin')
+    prediction = toxic_speech_classifier.predict(text)
+    label = prediction[0][0].replace("__label__", "")
+    confidence = prediction[1][0]
+    print(f"Language label: {label}, confidence: {confidence}")
+    return label, confidence
+
+
 
 if __name__ == "__main__":
     # warc_to_text('shared-data/CC/example.warc.gz')
 
     # identify_language("hi my name is bob")
 
-    masked_text, count = mask_emails("hi my name is bob and u can contact me at bob123@gmail.com or hi@yahoo.com")
-    print(f"masked_text: {masked_text}, count: {count}")
+    # masked_text, count = mask_emails("hi my name is bob and u can contact me at bob123@gmail.com or hi@yahoo.com")
+    # print(f"masked_text: {masked_text}, count: {count}")
 
-    masked_text, count = mask_phone_numbers("hi my name is bob and u can contact me at 123-456-7890")
-    print(f"masked_text: {masked_text}, count: {count}")
+    # masked_text, count = mask_phone_numbers("hi my name is bob and u can contact me at 123-456-7890")
+    # print(f"masked_text: {masked_text}, count: {count}")
 
