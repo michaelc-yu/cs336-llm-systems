@@ -1,6 +1,6 @@
 # CS336: Language Modeling from Scratch
 
-My implementation and experiments for [Stanford CS336 — Language Modeling from Scratch](https://cs336.stanford.edu/) (Assignments 1–4). Everything here - the tokenizer, the transformer, the training loop, the distributed systems code, the scaling-law tooling, and the data pipeline - is built from first principles, mostly in raw PyTorch and Triton without relying on Hugging Face or other high-level libraries.
+My implementation and experiments for [Stanford CS336 — Language Modeling from Scratch](https://cs336.stanford.edu/) (Assignments 1–5). Everything here - the tokenizer, the transformer, the training loop, the distributed systems code, the scaling-law tooling, the data pipeline, and the GRPO algorithm - is built from first principles, mostly in raw PyTorch and Triton without relying on Hugging Face or other high-level libraries.
 
 Full writeups with results and analysis are in [`writeup.md`](./writeup.md).
 
@@ -30,11 +30,17 @@ Full writeups with results and analysis are in [`writeup.md`](./writeup.md).
 - PII masking (emails, phone numbers, IP addresses) and harmful-content filtering (NSFW, toxic speech detection)
 - Gopher-style quality-filtering rules and exact deduplication over web-scraped documents
 
+**Assignment 5 — Alignment: Reasoning RL**
+- GRPO implemented from scratch: response tokenization/masking, per-token log-probs and entropy, group-normalized advantages, masked policy-gradient loss with microbatched gradient accumulation, and gradient clipping
+- On-policy RL training loop for GSM8K math reasoning — an r1-zero-style (think/answer) policy is trained with AdamW against a verified correctness + format reward, with rollouts sampled from a live vLLM server that is weight-synced from the training model every step
+- Prompting-baseline study (question-only vs. r1-zero vs. r1-zero 3-shot) measuring format/correctness reward before any RL training
+- Learning-rate sweep and prompt-format ablation for GRPO training, plus an analysis of sequence vs. constant-length loss normalization and its effect on response-length bias
+
 ## Repo structure
 
 ```
 .
-├── writeup.md              # combined writeup for all four assignments
+├── writeup.md              # combined writeup for all five assignments
 ├── assignment1/             # tokenizer, transformer, optimizer, training loop
 │   ├── src/                 # BPE tokenizer, model, optimizer, training loop
 │   ├── tests/
@@ -49,10 +55,14 @@ Full writeups with results and analysis are in [`writeup.md`](./writeup.md).
 │   ├── scripts/
 │   ├── examples/
 │   └── tests/
-└── assignment4/              # data: extraction, filtering, dedup
-    ├── cs336_data/              # text extraction, langid, PII masking, quality filters, dedup
-    ├── cs336_basics/            # assignment 1 model code, reused as a dependency
-    ├── scripts/
+├── assignment4/              # data: extraction, filtering, dedup
+│   ├── cs336_data/              # text extraction, langid, PII masking, quality filters, dedup
+│   ├── cs336_basics/            # assignment 1 model code, reused as a dependency
+│   ├── scripts/
+│   └── tests/
+└── assignment5/              # alignment: reasoning RL (GRPO)
+    ├── cs336_alignment/          # GRPO losses/advantages, reward grading, vLLM + Modal infra
+    ├── runs/                     # training curves and ablation plots
     └── tests/
 ```
 
@@ -60,4 +70,4 @@ Each assignment retains its original git history (imported via `git subtree`) �
 
 ## Stack
 
-PyTorch, Triton, einops, pytest.
+PyTorch, Triton, einops, pytest, vLLM.
