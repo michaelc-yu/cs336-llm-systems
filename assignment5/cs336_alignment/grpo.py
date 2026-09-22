@@ -155,6 +155,7 @@ def aggregate_loss_across_microbatch(
     mask: torch.Tensor,
     loss_normalization: Literal['sequence', 'constant'] = 'sequence',
     normalization_constant: int | None = None,
+    normalization_count: int | None = None,
 ) -> torch.Tensor:
     masked_loss = per_token_policy_gradient_loss * mask
     per_sequence_loss_sum = masked_loss.sum(dim=1)
@@ -163,7 +164,10 @@ def aggregate_loss_across_microbatch(
         num_response_tokens = mask.sum(dim=1)
         num_response_tokens = torch.clamp(num_response_tokens, min=1)
         per_sequence_loss = per_sequence_loss_sum / num_response_tokens
-        scalar_loss = per_sequence_loss.mean()
+        if normalization_count is None:
+            scalar_loss = per_sequence_loss.mean()
+        else:
+            scalar_loss = per_sequence_loss.sum() / normalization_count
     elif loss_normalization == 'constant':
         assert normalization_constant is not None, "Normalization constant must be provided for 'constant' normalization."
         sequence_loss_sum = per_sequence_loss_sum.sum()
@@ -218,6 +222,19 @@ def grpo_train_step(
         labels_microbatch = rollout_responses[i : i + microbatch_size]
         advantages_microbatch = advantages[i : i + microbatch_size]
 
+        # filter out zero-advantage sequences
+        original_microbatch_size = len(inputs_microbatch)
+        nonzero_mask = advantages_microbatch != 0
+        if not nonzero_mask.any():
+            continue
+        inputs_microbatch = [
+            x for x, keep in zip(inputs_microbatch, nonzero_mask) if keep
+        ]
+        labels_microbatch = [
+            x for x, keep in zip(labels_microbatch, nonzero_mask) if keep
+        ]
+        advantages_microbatch = advantages_microbatch[nonzero_mask]
+
         # Tokenize and get log probs
         output = tokenize_prompt_and_output(
             prompt_strs=inputs_microbatch,
@@ -260,8 +277,10 @@ def grpo_train_step(
             mask=output['response_mask'].to(model.device),
             loss_normalization=loss_normalization,
             normalization_constant=normalization_constant,
+            normalization_count=original_microbatch_size,
         )
-        scalar_loss /= gradient_accumulation_steps
+        if loss_normalization == 'sequence':
+            scalar_loss /= gradient_accumulation_steps
         scalar_loss.backward()
         batch_loss += scalar_loss
 

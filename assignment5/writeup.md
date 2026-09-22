@@ -106,3 +106,12 @@ The r1 zero three shot prompt performs by far the best. Based on the prompting b
 
 Sequence normalization gives each response equal weight regardless of response length. But this means that tokens in shorter responses have more weight than tokens in longer responses which could bias training toward shorter responses. Constant normalization gives each token equal weight, but longer responses then contribute more to the overall gradient and can dominate training. In our run, the average validation response length increased from ~108 to ~130+ tokens, so sequence normalization keeps the influence of each response more consistent as responses get longer, while constant normalization would give those longer responses more influence. For our GRPO setup, it seems that sequence normalization is more appropriate since the rewards and advantages are assigned at the response level.
 
+
+# Problem (think_about_rft)
+
+RFT reinforces every response with a positive reward, whereas Dr. GRPO uses the reward relative to the group mean. If all responses in a group are correct, Dr. GRPO assigns zero advantage to every response and produces no update, while RFT reinforces all of the correct responses. If all responses are incorrect, both objectives produce no update. Thus, Dr. GRPO is more focused on improving responses relative to other responses in the same group, while RFT can reinforce successful responses even when the entire group is successful.
+
+
+# Problem (think_about_advantage_normalization)
+
+With no normalization, we preserve the magnitude of the reward differences but this can lead to very different gradient scales across groups. Normalizing by the group mean makes the advantages relative to the average reward, but this seems problematic when the group mean is very small, as we would be dividing the advantages by a very small number. Normalizing by the group standard deviation seems more useful when a group contains both correct and incorrect responses, since it gives a more consistent scale across groups, although it can give no signal if every response in the group has same reward. I would expect std normalization to work better especially for mixed reward groups.
