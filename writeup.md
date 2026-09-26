@@ -1,6 +1,6 @@
-# CS336: Language Modeling from Scratch — Writeups
+# CS336: Language Modeling from Scratch (Writeups)
 
-## Assignment 1: Basics — Tokenizer, Transformer, Training
+## Assignment 1: Basics - Tokenizer, Transformer, Training
 
 ### Problem (unicode1)
 ```
@@ -188,7 +188,7 @@ After they finished, Lily's dad gave her some money for doing such a good job. L
 Observations: The output is surprisingly fluent. With a higher temperature, the generations are more varied - sometimes a story about Lily, other times stories about Timmy or some fish. When setting temperature closer to 0, the generations are mostly about Lily.
 
 
-## Assignment 2: Systems — Benchmarking, Mixed Precision, FlashAttention, Distributed Training
+## Assignment 2: Systems (Benchmarking, Mixed Precision, FlashAttention, Distributed Training)
 
 ### Problem (benchmarking_script)
 
@@ -482,13 +482,13 @@ Benchmarked on H100 with 80GB SXM5.
 | 32768   | 128     | bf16      | 10.4475          | 8.4067          | 1.24        | 25.3332                | 19.5154              | 1.30              | OK     |
 | 32768   | 128     | fp32      | 23.1913          | 14.1306         | 1.64        | 61.4872                | 51.7044              | 1.19              | OK     |
 | 65536   | 16      | bf16      | 41.4746          | 14.3544         | 2.89        | 87.3917                | 57.9517              | 1.51              | OK     |
-| 65536   | 16      | fp32      | —                | —               | —           | —                      | —                    | —                 | OOM    |
+| 65536   | 16      | fp32      | -                | -               | -           | -                      | -                    | -                 | OOM    |
 | 65536   | 32      | bf16      | 41.6124          | 19.3344         | 2.15        | 87.3821                | 63.0816              | 1.39              | OK     |
-| 65536   | 32      | fp32      | —                | —               | —           | —                      | —                    | —                 | OOM    |
+| 65536   | 32      | fp32      | -                | -               | -           | -                      | -                    | -                 | OOM    |
 | 65536   | 64      | bf16      | 41.8318          | 22.7662         | 1.84        | 87.9212                | 66.9465              | 1.31              | OK     |
-| 65536   | 64      | fp32      | —                | —               | —           | —                      | —                    | —                 | OOM    |
+| 65536   | 64      | fp32      | -                | -               | -           | -                      | -                    | -                 | OOM    |
 | 65536   | 128     | bf16      | 41.9562          | 32.3046         | 1.30        | 88.4797                | 77.3745              | 1.14              | OK     |
-| 65536   | 128     | fp32      | —                | —               | —           | —                      | —                    | —                 | OOM    |
+| 65536   | 128     | fp32      | -                | -               | -           | -                      | -                    | -                 | OOM    |
 
 
 Speedup tends to decrease as d_model increases. This is because as d_model increases, attention becomes more compute-bound and less memory-bound. Usually the forward speedup
@@ -687,7 +687,7 @@ Quick observation: these results show that D/N =~ 6-10x rather than 20x (as ment
 Given 12 B200-hours for exploratory runs, I'd want to split the compute budget up so I have enough compute for multiple smaller experiments. I'd want to run multiple experiments across varying compute budgets. I would run more runs across smaller compute budgets since smaller compute runs are cheap so I can afford denser coverage there. I would run less larger compute runs and mainly use them to validate the scaling curve. For each compute budget, I'd try different combinations of parameters and dataset sizes (N and D). Given that C =~ 6ND, and Chinchilla finds that optimal split is roughly 20 tokens per parameters, I could sample from {6, 10, 15, 20, 25, 30} tokens per parameter. Then I'd query the training API with all these setups, and find the lowest final loss per compute budget size and fit a power law $y = a * x^b$ on them using scipy curve_fit method.
 
 
-## Assignment 4: Data — Filtering, Deduplication, and Quality Pipelines
+## Assignment 4: Data (Filtering, Deduplication, and Quality Pipelines)
 
 ### Problem (look_at_cc)
 
@@ -744,7 +744,7 @@ When these filters are applied to create the training set, the language model wo
 See cs336_data/dedup.py exact_dedup()
 
 
-## Assignment 5: Alignment — Reasoning RL (GRPO)
+## Assignment 5: Alignment (Reasoning RL with GRPO)
 
 ### Problem (prompting_baselines)
 

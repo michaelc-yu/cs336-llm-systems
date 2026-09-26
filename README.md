@@ -1,38 +1,38 @@
 # CS336: Language Modeling from Scratch
 
-My implementation and experiments for [Stanford CS336 — Language Modeling from Scratch](https://cs336.stanford.edu/) (Assignments 1–5). Everything here - the tokenizer, the transformer, the training loop, the distributed systems code, the scaling-law tooling, the data pipeline, and the GRPO algorithm - is built from first principles, mostly in raw PyTorch and Triton without relying on Hugging Face or other high-level libraries.
+My implementation and experiments for [Stanford CS336: Language Modeling from Scratch](https://cs336.stanford.edu/) (Assignments 1–5). Everything here - the tokenizer, the transformer, the training loop, the distributed systems code, the scaling-law tooling, the data pipeline, and the GRPO algorithm - is built from first principles, mostly in raw PyTorch and Triton without relying on Hugging Face or other high-level libraries.
 
 Full writeups with results and analysis are in [`writeup.md`](./writeup.md).
 
 ## Highlights
 
-**Assignment 1 — Basics**
+**Assignment 1: Basics**
 - Byte-pair encoding tokenizer implemented from scratch (trained on TinyStories and OpenWebText), including the fast merge-counting logic used during training
 - Transformer language model built from scratch: multi-head self-attention, RoPE, SwiGLU feed-forward, RMSNorm
 - AdamW optimizer implemented from scratch, with cosine learning-rate schedule and gradient clipping
 - Learning-rate and batch-size ablations, with FLOPs/parameter-count accounting for GPT-2-scale models
 - End-to-end training + checkpointing + autoregressive text generation on TinyStories
 
-**Assignment 2 — Systems**
+**Assignment 2: Systems**
 - Custom FlashAttention forward and backward kernels written in Triton, up to ~10x faster than PyTorch SDPA at small sequence lengths, benchmarked up to 65K tokens on an H100
-- Mixed-precision (fp16/bf16) training analysis — where PyTorch autocast keeps ops in fp32 and why
+- Mixed-precision (fp16/bf16) training analysis: where PyTorch autocast keeps ops in fp32 and why
 - Memory profiling of forward vs. full training steps across context lengths
 - Distributed training from scratch: naive DDP, flattened-gradient DDP, and DDP with overlapped backward/communication (cut gradient-sync overhead from ~54% to ~3% of step time)
 - Optimizer state sharding (ZeRO stage 1-style), reducing peak memory after the optimizer step by ~30% on 2× GPUs
 - `torch.compile` benchmarking across model/context sizes
 
-**Assignment 3 — Scaling Laws**
+**Assignment 3: Scaling Laws**
 - Chinchilla IsoFLOPs analysis to derive compute-optimal model/dataset size tradeoffs, fitting power laws to loss vs. compute
 - Scaling-law experiment design under a fixed compute budget, allocating denser coverage to cheaper runs and using larger runs to validate the fitted curve
 
-**Assignment 4 — Data**
+**Assignment 4: Data**
 - Common Crawl text extraction (resiliparse vs. WET) and language identification
 - PII masking (emails, phone numbers, IP addresses) and harmful-content filtering (NSFW, toxic speech detection)
 - Gopher-style quality-filtering rules and exact deduplication over web-scraped documents
 
-**Assignment 5 — Alignment: Reasoning RL**
+**Assignment 5: Alignment: Reasoning RL**
 - GRPO implemented from scratch: response tokenization/masking, per-token log-probs and entropy, group-normalized advantages, masked policy-gradient loss with microbatched gradient accumulation, and gradient clipping
-- On-policy RL training loop for GSM8K math reasoning — an r1-zero-style (think/answer) policy is trained with AdamW against a verified correctness + format reward, with rollouts sampled from a live vLLM server that is weight-synced from the training model every step
+- On-policy RL training loop for GSM8K math reasoning: an r1-zero-style (think/answer) policy is trained with AdamW against a verified correctness + format reward, with rollouts sampled from a live vLLM server that is weight-synced from the training model every step
 - Prompting-baseline study (question-only vs. r1-zero vs. r1-zero 3-shot) measuring format/correctness reward before any RL training
 - Learning-rate sweep and prompt-format ablation for GRPO training, plus an analysis of sequence vs. constant-length loss normalization and its effect on response-length bias
 
@@ -66,7 +66,7 @@ Full writeups with results and analysis are in [`writeup.md`](./writeup.md).
     └── tests/
 ```
 
-Each assignment retains its original git history (imported via `git subtree`) — see the commit log for the incremental development of each component.
+Each assignment retains its original git history (imported via `git subtree`); see the commit log for the incremental development of each component.
 
 ## Stack
 
