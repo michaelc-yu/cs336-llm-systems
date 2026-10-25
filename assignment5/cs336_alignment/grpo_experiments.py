@@ -57,6 +57,11 @@ def main():
 
     parser.add_argument("--seed", type=int, default=42)
 
+    parser.add_argument("--baseline", choices=['mean', 'none'], default='mean')
+    parser.add_argument("--advantage_normalizer", choices=['std', 'none', 'mean'], default='std')
+    parser.add_argument("--loss_normalization", choices=['sequence', 'constant'], default='sequence')
+    parser.add_argument("--normalization_constant", type=int, default=None)
+
     args = parser.parse_args()
 
     # Load data and prompt
@@ -70,7 +75,7 @@ def main():
     wandb.init(
         project="cs336-a5-grpo",
         group=group_name,
-        name=f"{group_name}-seed{args.seed}-lr{args.learning_rate}",
+        name=f"{group_name}-seed{args.seed}-lr{args.learning_rate}-baseline{args.baseline}-adv_norm{args.advantage_normalizer}-loss_norm{args.loss_normalization}",
         config={
             "learning_rate": args.learning_rate,
             "rollout_batch_size": args.rollout_batch_size,
@@ -78,6 +83,9 @@ def main():
             "sampling_temperature": args.sampling_temperature,
             "num_rollout_steps": args.num_rollout_steps,
             "seed": args.seed,
+            "baseline": args.baseline,
+            "advantage_normalizer": args.advantage_normalizer,
+            "loss_normalization": args.loss_normalization,
         },
     )
 
@@ -145,14 +153,14 @@ def main():
             rollout_responses=[completion.text for completion in completions],
             repeated_ground_truths=repeated_ground_truths,
             group_size=args.group_size,
-            baseline="mean",
+            baseline=args.baseline,
             advantage_eps=args.advantage_eps,
-            advantage_normalizer="std",
+            advantage_normalizer=args.advantage_normalizer,
             importance_reweighting_method="none",
             old_log_probs=None,
             cliprange=None,
-            loss_normalization="sequence",
-            normalization_constant=None,
+            loss_normalization=args.loss_normalization,
+            normalization_constant=args.normalization_constant,
         )
 
         wandb_data = {
