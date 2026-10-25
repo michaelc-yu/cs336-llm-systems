@@ -854,3 +854,34 @@ RFT reinforces every response with a positive reward, whereas Dr. GRPO uses the 
 ### Problem (think_about_advantage_normalization)
 
 With no normalization, we preserve the magnitude of the reward differences but this can lead to very different gradient scales across groups. Normalizing by the group mean makes the advantages relative to the average reward, but this seems problematic when the group mean is very small, as we would be dividing the advantages by a very small number. Normalizing by the group standard deviation seems more useful when a group contains both correct and incorrect responses, since it gives a more consistent scale across groups, although it can give no signal if every response in the group has same reward. I would expect std normalization to work better especially for mixed reward groups.
+
+### Problem (grpo_experiments_variants_on_policy)
+
+![train mean reward for all runs](assignment5/runs/onpolicyvariants-mean_reward.png)
+
+![val mean reward for all runs](assignment5/runs/onpolicyvariants-val_mean_reward.png)
+
+The mean validation rewards:
+- GRPO_constant: 0.41125
+- Dr_GRPO: 0.3725
+- RFT: 0.40125
+- MaxRL: 0.3175
+
+Highest variance: MaxRL
+Lowest variance: RFT
+
+Mean validation reward excluding the 2 outliers:
+- Dr_GRPO 0.4233
+- MaxRL 0.40
+
+There seems to be two runs (once for MaxRL and once for Dr_GRPO) that experiences a "collapse". The mean_token_entropy plot also shows only these two runs' token entropies blow up which can come from steps that are too large.
+
+Without the collapsed seeds, Dr_GRPO performs the best.
+
+### Problem (think_about_importance_reweighting)
+
+A major bottleneck in LLM post-training is the high cost of generating rollouts compared with performing additional optimization steps on existing data. Off-policy RL allows to overcome this bottleneck by generating a batch of text once, and then running multiple optimization steps over that data instead of a single gradient step. However, as the policy changes, the distribution of the previously generated data increasingly diverges from the current policy. Important reweighting is a strategy that helps against this bias by weighting samples according to the ratio between their probabilities under the current policy and the behavior policy that generated them.
+
+- For no reweighting, the bias would be high but the variance is low.
+- PPO/GRPO-style clipped token-level importance reweighting would have low bias but would have high variance since tracking token-level adjustments at each individual step could introduce instability and noisy optimizations.
+- GSPO instead applies importance reweighting at the sequence level rather than for each individual token. This helps reduce the impact of noisy token-level ratios and makes training more stable. However it loses some of the fine-grained correction obtained from token-level reweighting, and clipping still introduces some bias. So it is more of a middle ground.

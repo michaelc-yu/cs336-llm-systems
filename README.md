@@ -35,6 +35,7 @@ Full writeups with results and analysis are in [`writeup.md`](./writeup.md).
 - On-policy RL training loop for GSM8K math reasoning: an r1-zero-style (think/answer) policy is trained with AdamW against a verified correctness + format reward, with rollouts sampled from a live vLLM server that is weight-synced from the training model every step
 - Prompting-baseline study (question-only vs. r1-zero vs. r1-zero 3-shot) measuring format/correctness reward before any RL training
 - Learning-rate sweep and prompt-format ablation for GRPO training, plus an analysis of sequence vs. constant-length loss normalization and its effect on response-length bias
+- Comparison of on-policy objective variants (GRPO with constant normalization, Dr. GRPO, RFT, MaxRL) across seeds, including an analysis of training collapse and token-entropy blow-up, plus a conceptual analysis of importance reweighting for off-policy RL
 
 ## Repo structure
 
